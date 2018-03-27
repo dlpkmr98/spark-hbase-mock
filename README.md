@@ -28,3 +28,52 @@ Add System.setProperty("test.build.data.basedirectory", "C:/Temp/hbase"); to the
 This path can be changed, but it’s important to keep it short. Using the JUnit TemporaryFolder or the default path results in paths 
 too long, and shows an error similar to
 java.io.IOException: Failed to move meta file for ReplicaBeingWritten, blk_1073741825_1001, RBW.
+
+
+
+Put RDD Ex:
+
+val hbaseContext = new HBaseContext(sc, config)
+    hbaseContext.bulkPut[(Array[Byte], Array[(Array[Byte], Array[Byte], Array[Byte])])](
+      rdd,
+      TableName.valueOf(tableName),
+      (putRecord) => {
+        val put = new Put(putRecord._1)
+        putRecord._2.foreach((putValue) => put.addColumn(putValue._1, putValue._2, putValue._3))
+        put
+      })
+      
+      
+  Get RDD Ex: 
+  
+  val rdd_key = sc.parallelize(Array((Bytes.toBytes("key1")), (Bytes.toBytes("key2"))))
+
+    val getRdd = hbaseContext.bulkGet[Array[Byte], scala.collection.mutable.Map[String, String]](
+      TableName.valueOf(tableName),
+      2,
+      rdd_key,
+      record => {
+        new Get(record)
+      },
+      (result: Result) => {
+        val map = scala.collection.mutable.Map[String, String]()
+        if (result.listCells() != null) {
+          map += ("row_key" -> Bytes.toString(result.getRow))
+          val it = result.listCells().iterator()
+          while (it.hasNext) {
+            val cell = it.next()
+            val q = Bytes.toString(CellUtil.cloneQualifier(cell))
+            map += (q -> Bytes.toString(CellUtil.cloneValue(cell)))
+          }
+        }
+        map
+      })
+      
+    Converting RDD to Spark DataFrame:
+    
+    val zipRdd = getRdd.filter(!_.isEmpty).map(x => x.toList.sortBy(_._1).unzip)
+    val schema = StructType(zipRdd.first()._1.map(k => StructField(k, StringType, nullable = false)))
+    val rows = zipRdd.map(_._2).map(x => (Row(x: _*)))
+
+    val priceDF = sqlCtx.createDataFrame(rows, schema)
+    priceDF.show()
