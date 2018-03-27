@@ -5,52 +5,43 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.log4j.{ Level, LogManager }
 import org.apache.spark.{ SparkConf, SparkContext }
 import org.scalatest.{ BeforeAndAfterAll, Suite, SuiteMixin }
-//import com.github.sakserv.minicluster.impl.ZookeeperLocalCluster
-//import com.github.sakserv.minicluster.impl.HbaseLocalCluster
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.HBaseCluster
 import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.hbase.LocalHBaseCluster
 import org.apache.hadoop.hbase.spark.HBaseContext
+import org.apache.spark.sql.SQLContext
+import org.apache.log4j.Logger
 
 trait MiniCluster extends SuiteMixin with BeforeAndAfterAll { this: Suite =>
- 
-  var sc: SparkContext = _
+
+  @transient var sqlCtx: SQLContext = _
+  @transient var sc: SparkContext = _
   var hc: HBaseContext = _
   val htu: HBaseTestingUtility = new HBaseTestingUtility
-  val tableName = "t1"
-  val columnFamily = "c"
+  Logger.getRootLogger().setLevel(Level.WARN);
 
   override def beforeAll() {
-    //System.setProperty("HADOOP_HOME",
-    //"C:\\Users\\Dilip Diwakar\\Desktop\\winutils-master\\hadoop-2.7.1") 
+
+    System.setProperty("test.build.data.basedirectory", "C:/Temp/hbase")
     htu.cleanupTestDir()
-    println("starting minicluster+++++++++++++++++++++++++")    
-    println(" - minicluster started+++++++++++++++++++++++++")
+    println("starting minicluster>>>>>>>>>>>>>>>>>>>>>>>")
     htu.startMiniCluster()
-    try {
-      htu.deleteTable(Bytes.toBytes(tableName))
-    } catch {
-      case e: Exception => {
-        println(" - no table +++++++++++" + tableName + " found")
-      }
-
-    }
-    println(" - creating table+++++++++++++++++++++ " + tableName)
-    htu.createTable(Bytes.toBytes(tableName), Bytes.toBytes(columnFamily))
-    println(" - created table+++++++++++++++++++++++")
-
+    println(" - minicluster started>>>>>>>>>>>>>>>>>>>>>")
     val sparkConfig = new SparkConf()
-    sparkConfig.set("spark.broadcast.compress", "false").setAppName("hbase-rdd_spark")
+    sparkConfig.set("spark.broadcast.compress", "false").setAppName("MiniCluster")
     sc = new SparkContext("local", "test", sparkConfig)
+    sqlCtx = new SQLContext(sc)
+
   }
 
   override def afterAll() {
-    htu.deleteTable(Bytes.toBytes(tableName))
-    println("shuting down minicluster+++++++++++++++++++++")
+    println("shuting down minicluster>>>>>>>>>>>>>>>>>>>>>")
     htu.shutdownMiniCluster()
-    println(" - minicluster shut down+++++++++++++++++++++")
+    println(" - minicluster shut down>>>>>>>>>>>>>>>>>>>>>>")
     htu.cleanupTestDir()
     sc.stop();
+
   }
+
 }
