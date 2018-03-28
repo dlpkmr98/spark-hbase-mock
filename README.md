@@ -33,7 +33,9 @@ java.io.IOException: Failed to move meta file for ReplicaBeingWritten, blk_10737
 
 Put RDD Ex:
 
+
 val hbaseContext = new HBaseContext(sc, config)
+
     hbaseContext.bulkPut[(Array[Byte], Array[(Array[Byte], Array[Byte], Array[Byte])])](
       rdd,
       TableName.valueOf(tableName),
@@ -45,6 +47,7 @@ val hbaseContext = new HBaseContext(sc, config)
       
       
   Get RDD Ex: 
+  
   
   val rdd_key = sc.parallelize(Array((Bytes.toBytes("key1")), (Bytes.toBytes("key2"))))
 
