@@ -61,13 +61,13 @@
 
 		<!-- hbase Mockup dependencies -->
 
-		<dependency>
-			<groupId>jdk.tools</groupId>
-			<artifactId>jdk.tools</artifactId>
-			<version>1.8.0_121</version>
-			<scope>system</scope>
-			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>jdk.tools</groupId> -->
+<!-- 			<artifactId>jdk.tools</artifactId> -->
+<!-- 			<version>1.8.0_121</version> -->
+<!-- 			<scope>system</scope> -->
+<!-- 			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.apache.hbase</groupId>

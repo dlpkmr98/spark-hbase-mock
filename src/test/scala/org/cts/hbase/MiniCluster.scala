@@ -19,7 +19,7 @@ trait MiniCluster extends SuiteMixin with BeforeAndAfterAll { this: Suite =>
   @transient var sc: SparkContext = _
   var hc: HBaseContext = _
   val htu: HBaseTestingUtility = new HBaseTestingUtility
-  Logger.getRootLogger().setLevel(Level.WARN);
+  Logger.getRootLogger().setLevel(Level.OFF);
 
   override def beforeAll() {
 
